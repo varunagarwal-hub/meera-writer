@@ -8,6 +8,7 @@ import { selfCheck } from '../lib/diagnostics.js';
 import { checkNote } from '../lib/gate.js';
 import { GeminiError, generateLinkedInPost } from '../lib/gemini.js';
 import { finaliseDraft, findNews } from '../lib/news.js';
+import { PromptFileError } from '../lib/prompts.js';
 import { sendText, sendTyping } from '../lib/telegram.js';
 import { VoiceFileError } from '../lib/voice.js';
 
@@ -133,7 +134,7 @@ function userFacingError(err) {
   if (err instanceof ConfigError) {
     return 'The bot is missing a setting on the server, so I could not write the draft. The bot owner needs to check the environment variables.';
   }
-  if (err instanceof VoiceFileError) {
+  if (err instanceof VoiceFileError || err instanceof PromptFileError) {
     return 'I could not load the writing instructions, so I did not write a draft. The bot owner needs to check voice-skill.txt.';
   }
   return 'Something went wrong while writing the draft. Please send the note again in a minute.';

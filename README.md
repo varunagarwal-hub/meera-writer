@@ -41,7 +41,8 @@ Meera → Telegram → Vercel (/api/telegram) → score gate (Gemini + scoring-p
 | `lib/telegram.js` | Telegram Bot API calls and message splitting |
 | `lib/voice.js` | Reads `voice-skill.txt` on every generation |
 | `lib/config.js` | Environment variables and validation |
-| `voice-skill.txt` | Meera's voice instructions (source of truth for style) |
+| `voice-skill.txt` | Meera's voice instructions: how she thinks, her vocabulary, and the fact and honesty rules |
+| `post-style.txt` | Post craft rules: length (120–220 words), core idea, hook, and format (personal story, case study or topical). These override the voice file on length, structure, hooks and format. Edit to tune how posts read. |
 | `scoring-prompt.txt` | The quality-gate prompt. Edit it to tune what gets drafted. `<<<NOTE>>>` is replaced with the note. |
 | `lib/gate.js` | Scoring call, output validation, threshold decision |
 | `keywords-prompt.txt` | Prompt that turns a note into a news search phrase |
