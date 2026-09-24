@@ -7,13 +7,17 @@ process.env.GEMINI_API_KEY ||= 'TEST_KEY';
 
 const { DRAFT_SCORE_THRESHOLD } = await import('../lib/config.js');
 const { SCORE_FAILED_MESSAGE, parseScore } = await import('../lib/gate.js');
-const { geminiText, runNote } = await import('./harness.js');
+const { geminiText, rssResponse, runNote: runWithFakes } = await import('./harness.js');
 
 const NOTE = 'any note; the score is faked';
 const DRAFT = 'A drafted LinkedIn post.';
+const KEYWORDS = '{"keywords": ["x"], "search_phrase": "x"}';
+
+// Gate tests stay offline: the news feed is faked and returns no items.
+const runNote = (note, opts) => runWithFakes(note, { news: () => rssResponse(''), ...opts });
 
 function fakeGemini(scoreJson) {
-  return (kind) => geminiText(kind === 'score' ? scoreJson : DRAFT);
+  return (kind) => geminiText(kind === 'score' ? scoreJson : kind === 'keywords' ? KEYWORDS : DRAFT);
 }
 
 test('threshold is 6', () => {
@@ -30,7 +34,7 @@ test('score 5 is rejected with the reason, and no draft call is made', async () 
 for (const score of [6, 7]) {
   test(`score ${score} passes the gate and is drafted`, async () => {
     const r = await runNote(NOTE, { gemini: fakeGemini(`{"score": ${score}, "reason": "Clear angle."}`) });
-    assert.deepEqual(r.geminiCalls, ['score', 'draft']);
+    assert.deepEqual(r.geminiCalls, ['score', 'keywords', 'draft']);
     assert.deepEqual(r.sent, [DRAFT]);
     assert.equal(r.gate.decision, 'drafted');
   });
@@ -58,9 +62,9 @@ test('a failed first attempt followed by a valid score continues normally', asyn
     gemini: (kind) =>
       kind === 'score'
         ? geminiText(++scoreCalls === 1 ? 'not json' : '{"score": 8, "reason": "Specific data."}')
-        : geminiText(DRAFT),
+        : geminiText(kind === 'keywords' ? KEYWORDS : DRAFT),
   });
-  assert.deepEqual(r.geminiCalls, ['score', 'score', 'draft']);
+  assert.deepEqual(r.geminiCalls, ['score', 'score', 'keywords', 'draft']);
   assert.deepEqual(r.sent, [DRAFT]);
 });
 

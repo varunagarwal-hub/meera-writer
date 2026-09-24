@@ -1,10 +1,12 @@
 // Vercel serverless function: the Telegram webhook.
-// Flow: Telegram → this endpoint → score gate → Gemini (with voice-skill.txt) → back to the same chat.
+// Flow: Telegram → this endpoint → score gate → news angle (optional) → Gemini (with
+// voice-skill.txt) → verify flag if news was used → back to the same chat.
 
 import { waitUntil } from '@vercel/functions';
 import { ConfigError, getMaxNoteChars, getTelegramConfig } from '../lib/config.js';
 import { checkNote } from '../lib/gate.js';
 import { GeminiError, generateLinkedInPost } from '../lib/gemini.js';
+import { finaliseDraft, findNews } from '../lib/news.js';
 import { sendText, sendTyping } from '../lib/telegram.js';
 import { VoiceFileError } from '../lib/voice.js';
 
@@ -67,7 +69,8 @@ export async function handleUpdate(update, config) {
 
   const chatId = message.chat.id;
   const userId = String(message.from?.id ?? '');
-  const reply = (text) => sendText(config.botToken, chatId, text, { replyTo: message.message_id });
+  const reply = (text, opts) =>
+    sendText(config.botToken, chatId, text, { replyTo: message.message_id, ...opts });
   const text = (message.text ?? message.caption ?? '').trim();
 
   // /id works for everyone so the owner can find Meera's ID for the allowlist.
@@ -99,19 +102,26 @@ export async function handleUpdate(update, config) {
   await sendTyping(config.botToken, chatId);
 
   // Quality gate: weak notes (reminders, fragments) get a short reason instead of a draft.
-  const gate = await checkNote(text, { noteId: `${chatId}:${message.message_id}` });
+  const noteId = `${chatId}:${message.message_id}`;
+  const gate = await checkNote(text, { noteId });
   if (!gate.pass) return reply(gate.message);
+
+  // Optional news angle. Never blocks the draft: null means "draft without news".
+  const news = await findNews(text, { noteId });
 
   let draft;
   try {
-    draft = await generateLinkedInPost(text);
+    draft = await generateLinkedInPost(text, { newsPrompt: news?.prompt });
   } catch (err) {
     console.error('[generate]', err);
     return reply(userFacingError(err));
   }
 
+  const { post, usedNews, flag } = finaliseDraft(draft, news?.item);
+  console.log(`[news] note=${noteId} used_news=${usedNews} flag=${flag ? 'appended' : 'none'}`);
+
   try {
-    await reply(draft);
+    await reply(post, { footer: flag });
   } catch (err) {
     console.error('[telegram send]', err);
   }
