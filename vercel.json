@@ -2,8 +2,8 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "functions": {
     "api/telegram.js": {
-      "maxDuration": 120,
-      "includeFiles": "voice-skill.txt"
+      "maxDuration": 180,
+      "includeFiles": "*.txt"
     }
   }
 }

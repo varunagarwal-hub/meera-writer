@@ -1,8 +1,9 @@
 // Vercel serverless function: the Telegram webhook.
-// Flow: Telegram → this endpoint → Gemini (with voice-skill.txt) → back to the same chat.
+// Flow: Telegram → this endpoint → score gate → Gemini (with voice-skill.txt) → back to the same chat.
 
 import { waitUntil } from '@vercel/functions';
 import { ConfigError, getMaxNoteChars, getTelegramConfig } from '../lib/config.js';
+import { checkNote } from '../lib/gate.js';
 import { GeminiError, generateLinkedInPost } from '../lib/gemini.js';
 import { sendText, sendTyping } from '../lib/telegram.js';
 import { VoiceFileError } from '../lib/voice.js';
@@ -58,7 +59,8 @@ function parseBody(body) {
   return null;
 }
 
-async function handleUpdate(update, config) {
+// Exported for tests.
+export async function handleUpdate(update, config) {
   const message = update.message;
   // Edited messages, channel posts, button presses etc. are ignored.
   if (!message?.chat?.id) return;
@@ -95,6 +97,10 @@ async function handleUpdate(update, config) {
   }
 
   await sendTyping(config.botToken, chatId);
+
+  // Quality gate: weak notes (reminders, fragments) get a short reason instead of a draft.
+  const gate = await checkNote(text, { noteId: `${chatId}:${message.message_id}` });
+  if (!gate.pass) return reply(gate.message);
 
   let draft;
   try {

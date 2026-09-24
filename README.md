@@ -3,12 +3,13 @@
 A Telegram bot that turns Meera's raw notes into LinkedIn drafts.
 
 ```
-Meera → Telegram → Vercel (/api/telegram) → Gemini + voice-skill.txt → draft → same Telegram chat → Meera
+Meera → Telegram → Vercel (/api/telegram) → score gate (Gemini + scoring-prompt.txt) → Gemini + voice-skill.txt → draft → same Telegram chat → Meera
 ```
 
 ## How it works
 
 - `api/telegram.js` is the webhook. It checks Telegram's secret header, replies `200` straight away (so Telegram never resends and creates duplicate drafts), then finishes the work in the background using Vercel's `waitUntil`.
+- `lib/gate.js` scores every note before drafting. It makes one Gemini call (JSON mode) with `scoring-prompt.txt`, which gets back a score from 0 to 10 and a one-line reason. Notes scoring below `DRAFT_SCORE_THRESHOLD` (6, in `lib/config.js`) are not drafted. Meera instead gets `No draft made — scored {score}/10. {reason}`. If scoring errors or returns something unparseable, it retries once. If that fails too, Meera gets "Couldn't score this note, so no draft was made. Send it again to retry." A note is never drafted without a score.
 - `lib/gemini.js` builds the prompt and calls Gemini. **Every** request reads `voice-skill.txt` from disk and puts its full contents into Gemini's system instruction:
   ```
   SYSTEM/VOICE INSTRUCTIONS:
@@ -34,9 +35,12 @@ Meera → Telegram → Vercel (/api/telegram) → Gemini + voice-skill.txt → d
 | `lib/voice.js` | Reads `voice-skill.txt` on every generation |
 | `lib/config.js` | Environment variables and validation |
 | `voice-skill.txt` | Meera's voice instructions (source of truth for style) |
+| `scoring-prompt.txt` | The quality-gate prompt. Edit it to tune what gets drafted. `<<<NOTE>>>` is replaced with the note. |
+| `lib/gate.js` | Scoring call, output validation, threshold decision |
+| `test/` | `gate.test.js` (Gemini faked) and `gate.live.test.js` (real Gemini) |
 | `scripts/set-webhook.mjs` | Connects the bot to your Vercel URL |
 | `scripts/try-draft.mjs` | Generates one draft locally, without Telegram |
-| `vercel.json` | Includes `voice-skill.txt` in the function bundle; sets a 120s time limit |
+| `vercel.json` | Includes the prompt `.txt` files in the function bundle; sets a 180s time limit |
 | `.env.example` | Template for environment variables |
 
 ## 1. Get credentials
@@ -73,6 +77,22 @@ Keys never go in code. They go in two places:
 `voice-skill.txt` sits in the project root. To change how Meera writes, edit that file and redeploy. No code changes are needed. The file is read fresh on every generation, and `vercel.json` makes sure it ships with the function.
 
 ## 4. Test locally (optional)
+
+Run the tests:
+
+```bash
+npm test
+```
+
+This runs the gate's unit tests (threshold boundary, parsing, fail-closed path) with Gemini faked. The live tests are skipped.
+
+```bash
+npm run test:live
+```
+
+This also runs three real notes through real Gemini to check the scoring prompt's judgement. It reads `GEMINI_API_KEY` from `.env` and uses 4 or more Gemini requests.
+
+To try a single draft:
 
 Requires Node 20 or newer.
 
@@ -151,6 +171,8 @@ Meera sends a text note and gets a draft back in the same chat, as a reply to he
 | Gemini timeout, 429, 5xx, empty or unexpected response, cut-off draft | Retries once, then sends a short "please try again" message |
 | Safety block | Asks her to rephrase |
 | Draft longer than 4096 characters | Split into several messages at paragraph breaks |
+| Note scores below 6 | No draft. Meera gets the score and the reason. |
+| Scoring call fails or returns bad output twice | No draft. Meera is asked to send it again. |
 | Edited messages, group events, etc. | Ignored |
 
 Errors are logged in Vercel → Project → Logs. The Gemini key and Telegram token are never logged.
@@ -159,4 +181,6 @@ Errors are logged in Vercel → Project → Logs. The Gemini key and Telegram to
 
 - **Bot doesn't reply:** run `curl https://api.telegram.org/bot<TOKEN>/getWebhookInfo` and read `last_error_message`. A `401` there means the secret on Vercel doesn't match the one used in `setWebhook`. Fix it and run step 6 again.
 - **"rejected the request" message:** the Gemini key is invalid or `GEMINI_MODEL` names a model that doesn't exist. Check Vercel logs for the exact error.
-- **Timeouts:** switch `GEMINI_MODEL` to a faster model. The function limit is 120s (in `vercel.json`).
+- **Timeouts:** switch `GEMINI_MODEL` to a faster model. The function limit is 180s (in `vercel.json`).
+- **"Couldn't score this note" or "busy" messages, with 429 in the logs:** Gemini's free tier allows about 20 requests per day per model. Each note uses 2 (scoring + drafting), plus any retries. Turn on billing for the Gemini project in AI Studio to remove the daily limit.
+- **Tuning the gate:** edit `scoring-prompt.txt` and redeploy. To change the pass mark, edit `DRAFT_SCORE_THRESHOLD` in `lib/config.js`.
