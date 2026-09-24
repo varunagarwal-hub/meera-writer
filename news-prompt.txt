@@ -1,6 +1,6 @@
 If this news item is genuinely relevant, use it to make the post timely. If it doesn't fit naturally, ignore it.
 
-You only have the headline, publication, date and a short snippet. Do not state anything about the story beyond what those say, and attribute it to the publication. Never present it as Meera's own finding or experience.
+You only have the headline, publication, date and a short snippet. Do not state anything about the story beyond what those say, and attribute it to the publication. Never present it as the author's own finding or experience.
 
 At the very end of your output, on its own line, write USED_NEWS: yes or USED_NEWS: no.
 

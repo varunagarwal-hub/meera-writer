@@ -1,15 +1,15 @@
-# Meera Writer
+# LinkedIn Writer
 
-A Telegram bot that turns Meera's raw notes into LinkedIn drafts.
+A Telegram bot that turns raw notes into LinkedIn drafts in Varun Agarwal's voice. (The repo and Vercel project are still named `meera-writer`; renaming them would change the deployment URL and webhook.)
 
 ```
-Meera → Telegram → Vercel (/api/telegram) → score gate (Gemini + scoring-prompt.txt) → news angle (Gemini keywords + Google News RSS, optional) → Gemini + voice-skill.txt → draft (+ verify flag if news was used) → same Telegram chat → Meera
+You → Telegram → Vercel (/api/telegram) → score gate (Gemini + scoring-prompt.txt) → news angle (Gemini keywords + Google News RSS, optional) → Gemini + voice-skill.txt → draft (+ verify flag if news was used) → same Telegram chat → you
 ```
 
 ## How it works
 
 - `api/telegram.js` is the webhook. It checks Telegram's secret header, replies `200` straight away (so Telegram never resends and creates duplicate drafts), then finishes the work in the background using Vercel's `waitUntil`.
-- `lib/gate.js` scores every note before drafting. It makes one Gemini call (JSON mode) with `scoring-prompt.txt`, which gets back a score from 0 to 10 and a one-line reason. Notes scoring below `DRAFT_SCORE_THRESHOLD` (6, in `lib/config.js`) are not drafted. Meera instead gets `No draft made — scored {score}/10. {reason}`. If scoring errors or returns something unparseable, it retries once. If that fails too, Meera gets "Couldn't score this note, so no draft was made. Send it again to retry." A note is never drafted without a score.
+- `lib/gate.js` scores every note before drafting. It makes one Gemini call (JSON mode) with `scoring-prompt.txt`, which gets back a score from 0 to 10 and a one-line reason. Notes scoring below `DRAFT_SCORE_THRESHOLD` (6, in `lib/config.js`) are not drafted. You instead get `No draft made — scored {score}/10. {reason}`. If scoring errors or returns something unparseable, it retries once. If that fails too, you get "Couldn't score this note, so no draft was made. Send it again to retry." A note is never drafted without a score.
 - `lib/news.js` adds an optional news angle to notes that pass the gate. It works in four steps:
   1. One Gemini call (JSON mode, `keywords-prompt.txt`) returns a search phrase.
   2. It fetches `news.google.com/rss/search?q=<phrase>+when:30d` (India edition) and takes the first item's headline, publication, date, link and snippet.
@@ -24,7 +24,7 @@ Meera → Telegram → Vercel (/api/telegram) → score gate (Gemini + scoring-p
   TASK RULES: (output only the post, don't invent facts, don't mention the bot/AI…)
 
   USER'S RAW NOTE:
-  <Meera's message>
+  <your message>
   Generate the LinkedIn post by applying the voice instructions to the raw note.
   ```
   The task rules only describe the job. All style decisions come from `voice-skill.txt`.
@@ -41,7 +41,7 @@ Meera → Telegram → Vercel (/api/telegram) → score gate (Gemini + scoring-p
 | `lib/telegram.js` | Telegram Bot API calls and message splitting |
 | `lib/voice.js` | Reads `voice-skill.txt` on every generation |
 | `lib/config.js` | Environment variables and validation |
-| `voice-skill.txt` | Meera's voice instructions: how she thinks, her vocabulary, and the fact and honesty rules |
+| `voice-skill.txt` | Varun's voice instructions: how he thinks, hooks, story structures, vocabulary, and the do-not-invent rule |
 | `post-style.txt` | Post craft rules: length (120–220 words), core idea, hook, and format (personal story, case study or topical). These override the voice file on length, structure, hooks and format. Edit to tune how posts read. |
 | `scoring-prompt.txt` | The quality-gate prompt. Edit it to tune what gets drafted. `<<<NOTE>>>` is replaced with the note. |
 | `lib/gate.js` | Scoring call, output validation, threshold decision |
@@ -81,12 +81,12 @@ Keys never go in code. They go in two places:
 | `TELEGRAM_WEBHOOK_SECRET` | yes | The random string from step 1 |
 | `GEMINI_API_KEY` | yes | Gemini key |
 | `GEMINI_MODEL` | no | Defaults to `gemini-3.6-flash`. Use any model name from Google's model list. |
-| `ALLOWED_TELEGRAM_USER_IDS` | recommended | Meera's Telegram user ID, so strangers can't spend your Gemini quota. Comma-separate multiple IDs. |
+| `ALLOWED_TELEGRAM_USER_IDS` | recommended | Your Telegram user ID, so strangers can't spend your Gemini quota. Comma-separate multiple IDs. |
 | `MAX_NOTE_CHARS` | no | Maximum note length. Defaults to 8000. |
 
 ## 3. Voice instructions
 
-`voice-skill.txt` sits in the project root. To change how Meera writes, edit that file and redeploy. No code changes are needed. The file is read fresh on every generation, and `vercel.json` makes sure it ships with the function.
+`voice-skill.txt` sits in the project root. To change how the posts are written, edit that file and redeploy. No code changes are needed. The file is read fresh on every generation, and `vercel.json` makes sure it ships with the function.
 
 ## 4. Test locally (optional)
 
@@ -110,7 +110,7 @@ Requires Node 20 or newer.
 
 ```bash
 npm install
-npm run draft -- "Customers keep asking whether our serum is 'clean'. The term isn't regulated in India."
+npm run draft -- "At Headout I set up listings and API connections. Nobody saw that work until one detail went wrong."
 ```
 
 This prints the draft Gemini writes, using your `.env` and `voice-skill.txt`.
@@ -158,16 +158,16 @@ curl "https://api.telegram.org/bot<TOKEN>/setWebhook" -d "url=https://<your-url>
 
 Use your production URL (or a custom domain). Preview-deployment URLs change with every deploy and may be behind Vercel's deployment protection.
 
-## 7. Lock the bot to Meera
+## 7. Lock the bot to yourself
 
-1. Meera opens the bot and sends `/id`. The bot replies with her user ID.
+1. Open the bot and send `/id`. The bot replies with your user ID.
 2. Put that number in `ALLOWED_TELEGRAM_USER_IDS` on Vercel and redeploy.
 
 After that, anyone else gets "Sorry, this bot is private."
 
 ## Using it
 
-Meera sends a text note and gets a draft back in the same chat, as a reply to her note. She can send another note whenever she wants. `/start` and `/help` explain this.
+Send a text note and get a draft back in the same chat, as a reply to your note. Send another note whenever you want. `/start` and `/help` explain this.
 
 ## Error handling
 
@@ -176,15 +176,15 @@ Meera sends a text note and gets a draft back in the same chat, as a reply to he
 | Request without the right secret header | `401`, ignored |
 | Malformed body / not a Telegram update | `400` |
 | Missing Telegram env vars | `500`, logged (the bot can't reply without a token) |
-| Missing Gemini key or model problem | Meera is told the bot owner needs to check settings |
-| `voice-skill.txt` missing or empty | No draft is written; Meera is told the instructions couldn't be loaded |
+| Missing Gemini key or model problem | The reply says the bot owner needs to check settings |
+| `voice-skill.txt` or another prompt file missing | No draft is written; the reply says the instructions couldn't be loaded |
 | Empty message, sticker, photo without caption | Asks for a text note |
 | Note over `MAX_NOTE_CHARS` | Asks her to shorten it |
 | Gemini timeout, 429, 5xx, empty or unexpected response, cut-off draft | Retries once, then sends a short "please try again" message |
 | Safety block | Asks her to rephrase |
 | Draft longer than 4096 characters | Split into several messages at paragraph breaks |
-| Note scores below 6 | No draft. Meera gets the score and the reason. |
-| Scoring call fails or returns bad output twice | No draft. Meera is asked to send it again. |
+| Note scores below 6 | No draft. The reply gives the score and the reason. |
+| Scoring call fails or returns bad output twice | No draft. The reply asks you to send it again. |
 | Keyword call fails, Google News times out (10s), errors or has no results | Logged. The draft is written without news and has no flag. |
 | Draft used the news, or didn't say clearly whether it did | Verify block appended, and kept whole in the last message if the draft is split |
 | Edited messages, group events, etc. | Ignored |

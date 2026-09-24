@@ -8,9 +8,9 @@ import { runNote } from './harness.js';
 const live = { skip: !process.env.GEMINI_API_KEY && 'GEMINI_API_KEY not set' };
 
 const STRONG =
-  'returns data: 23% of returns cite texture, and most come from humid cities. Serum base too film-forming for Mumbai monsoon? Actives unchanged after reformulation, returns dropped. Nobody in Indian skincare talks about climate validation of the base.';
-const REMINDER = 'remind CM about mid-batch CoA sampling before thurs, also reorder pumps';
-const ABANDONED = 'something about peptides and how the';
+  'family business shut in 2023. instead of waiting we took a Zostel franchise in Guwahati with zero hospitality experience. supply chains were frozen so we sourced bamboo from a village workshop and got carpenters ten minutes away. broke even faster than projected. guests never mention the furniture, they mention the people.';
+const REMINDER = 'call zostel linen vendor about the invoice before thurs, also submit mesa assignment';
+const ABANDONED = 'something about ops and how the';
 
 function report(t, r) {
   t.diagnostic(`score=${r.gate?.score} decision=${r.gate?.decision} reason=${JSON.stringify(r.gate?.reason)}`);

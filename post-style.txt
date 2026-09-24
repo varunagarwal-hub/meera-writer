@@ -1,9 +1,9 @@
-These rules decide the post's length, structure, hook and format. Where they conflict with the voice instructions, these rules win. The voice instructions still decide how Meera thinks, the words she uses and avoids, British spelling, and every rule about facts and honesty.
+These rules decide the post's length, structure, hook and format. Where they conflict with the voice instructions, these rules win. The voice instructions still decide how the author thinks, the words he uses and avoids, and every rule about facts and honesty (including the do-not-invent rule).
 
 LENGTH AND SHAPE
 - 120–220 words. Cut anything that doesn't earn its place.
 - Short paragraphs of 1–3 lines with white space between them. Not one sentence per line all the way down.
-- No headers, bullets, emojis or hashtags.
+- No headers, bullets, emojis, hashtags or em dashes.
 
 FIND THE CORE BEFORE YOU WRITE A SINGLE WORD
 - Max two core elements, never five. Five threads means the reader holds none.
@@ -11,7 +11,7 @@ FIND THE CORE BEFORE YOU WRITE A SINGLE WORD
 - Take a strong, clear position. Don't explain both sides: grey is forgettable. Add one short qualifying line only if the post would be false without it.
 - A strong opinion is not an overstated fact. Keep every claim's certainty matched to the evidence in the note.
 - ABCD progression: each line moves the reader forward. Never restate a point. Avoid repetition religiously.
-- One thought per sentence. Subject before action: "The supplier changed the blend", never "The blend was changed by the supplier".
+- One thought per sentence. Subject before action: "I set up the listings", never "The listings were set up by me".
 - Use punchy phrases over full sentences when they land harder, even if grammar breaks.
 
 THE HOOK (first one or two lines)
@@ -25,7 +25,7 @@ The hook must be a fact from the note or the news item. Never invent a statistic
 PICK ONE FORMAT
 Choose the one that fits the note best.
 
-Personal story (the note describes something that happened to Meera or at Skinstinct):
+Personal story (the note describes something that happened to the author):
 - Clear start, middle and end. Make the point unmistakable, especially at the end.
 - Load every part of the story. Each section needs weight and substance.
 - About 80% story, final 20% a general thought the reader will want to respond to. Make it a statement, not a question.

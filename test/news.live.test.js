@@ -13,7 +13,7 @@ const telegram =
     : undefined;
 
 const NOTE =
-  "Cosmetic labelling in India: customers read the front of the pack ('natural', 'dermatologist tested', '10% niacinamide') but the regulated part is mostly the back panel, the INCI list, batch number, manufacturer and expiry. None of the front claims tell you pH or whether the active is stable. Worth explaining which parts of a cosmetic label in India are actually regulated and which are marketing, and what a customer can check on the back.";
+  "At Headout my job was the listings and API connections behind every booking. One wrong detail and a stranger's trip breaks, and nobody knows my name when it goes right. Now AI travel agents in India are starting to book and pay for trips on their own. My take: AI can do the booking, but someone still has to own the details it books against. That part doesn't get automated.";
 
 test('news-worthy note: draft arrives with news angle, source, date, link and verify flag', live, async (t) => {
   const r = await runNote(NOTE, { telegram });

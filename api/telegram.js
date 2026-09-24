@@ -75,7 +75,7 @@ export async function handleUpdate(update, config) {
     sendText(config.botToken, chatId, text, { replyTo: message.message_id, ...opts });
   const text = (message.text ?? message.caption ?? '').trim();
 
-  // /id works for everyone so the owner can find Meera's ID for the allowlist.
+  // /id works for everyone so the owner can find their user ID for the allowlist.
   if (/^\/id(@\w+)?$/i.test(text)) {
     return reply(`Your Telegram user ID is ${userId}.`);
   }

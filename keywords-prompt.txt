@@ -1,6 +1,6 @@
 Read this note and extract what a journalist would search for to find recent news on the same subject.
 
-Return 3–5 keywords and one search phrase of 2–5 words. Prefer concrete nouns (ingredients, regulations, product categories, places, organisations) over general words like "skincare" or "brand". If the note is about India, include India or a city in the phrase.
+Return 3–5 keywords and one search phrase of 2–5 words. Prefer concrete nouns (companies, industries, products, technologies, regulations, places, organisations) over general words like "business" or "career". If the note is about India, include India or a city in the phrase.
 
 Respond with only this JSON:
 {"keywords": ["...", "..."], "search_phrase": "..."}

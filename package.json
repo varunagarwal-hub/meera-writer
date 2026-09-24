@@ -2,7 +2,7 @@
   "name": "meera-writer",
   "version": "1.0.0",
   "private": true,
-  "description": "Telegram bot that turns Meera's raw notes into LinkedIn drafts using Gemini and voice-skill.txt",
+  "description": "Telegram bot that turns raw notes into LinkedIn drafts in Varun's voice using Gemini and voice-skill.txt",
   "type": "module",
   "engines": {
     "node": ">=20"

@@ -12,6 +12,6 @@ if (!note) {
 try {
   console.log(await generateLinkedInPost(note));
 } catch (err) {
-  console.error(err.userMessage ? `${err.message}\n(Meera would see: ${err.userMessage})` : err.message);
+  console.error(err.userMessage ? `${err.message}\n(the Telegram user would see: ${err.userMessage})` : err.message);
   process.exit(1);
 }
