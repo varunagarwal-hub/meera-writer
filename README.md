@@ -64,7 +64,7 @@ Keys never go in code. They go in two places:
 | `TELEGRAM_BOT_TOKEN` | yes | Token from BotFather |
 | `TELEGRAM_WEBHOOK_SECRET` | yes | The random string from step 1 |
 | `GEMINI_API_KEY` | yes | Gemini key |
-| `GEMINI_MODEL` | no | Defaults to `gemini-2.5-flash`. Use any model name from Google's model list. |
+| `GEMINI_MODEL` | no | Defaults to `gemini-3.6-flash`. Use any model name from Google's model list. |
 | `ALLOWED_TELEGRAM_USER_IDS` | recommended | Meera's Telegram user ID, so strangers can't spend your Gemini quota. Comma-separate multiple IDs. |
 | `MAX_NOTE_CHARS` | no | Maximum note length. Defaults to 8000. |
 
