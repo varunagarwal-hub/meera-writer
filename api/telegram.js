@@ -4,6 +4,7 @@
 
 import { waitUntil } from '@vercel/functions';
 import { ConfigError, getMaxNoteChars, getTelegramConfig } from '../lib/config.js';
+import { selfCheck } from '../lib/diagnostics.js';
 import { checkNote } from '../lib/gate.js';
 import { GeminiError, generateLinkedInPost } from '../lib/gemini.js';
 import { finaliseDraft, findNews } from '../lib/news.js';
@@ -16,7 +17,7 @@ const HELP_TEXT =
 
 export default async function handler(req, res) {
   if (req.method === 'GET') {
-    return res.status(200).json({ ok: true, service: 'meera-writer' });
+    return res.status(200).json({ ok: true, service: 'meera-writer', checks: await selfCheck() });
   }
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'GET, POST');

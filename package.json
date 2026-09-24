@@ -8,7 +8,7 @@
     "node": ">=20"
   },
   "scripts": {
-    "check": "node --check api/telegram.js && node --check lib/config.js && node --check lib/voice.js && node --check lib/gemini.js && node --check lib/gate.js && node --check lib/news.js && node --check lib/prompts.js && node --check lib/telegram.js && node --check scripts/set-webhook.mjs && node --check scripts/try-draft.mjs",
+    "check": "node --check api/telegram.js && node --check lib/config.js && node --check lib/voice.js && node --check lib/gemini.js && node --check lib/gate.js && node --check lib/news.js && node --check lib/prompts.js && node --check lib/diagnostics.js && node --check lib/telegram.js && node --check scripts/set-webhook.mjs && node --check scripts/try-draft.mjs",
     "draft": "node --env-file=.env scripts/try-draft.mjs",
     "set-webhook": "node --env-file=.env scripts/set-webhook.mjs",
     "test": "node --test test/gate.test.js test/news.test.js test/gate.live.test.js test/news.live.test.js",
